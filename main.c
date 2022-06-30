@@ -2,18 +2,25 @@
 #include "stdio.h" // for printing
 #include "stdlib.h" // for error handling and atoi
 #include "string.h" // for strcmp
+#include "unistd.h" // for sleeping
 #include "pthread.h" // for threading
+
+// print the number n and sleep d ms
+void printnum(int n, int d) {
+    printf("%d\n", n);
+    usleep(d*1000);
+}
 
 // generate and print the first n natural numbers
 // if n < 0, continue indefinitely
 // return the next number in the series
-int print_natural_series(int n) {
+int print_natural_series(int n, int d) {
     int c = n;
     // first natural number
     int num = 0;
     while (c != 0) {
         // display current number
-        printf("%d\n", num);
+        printnum(num, d);
 
         // find next natural number
         ++num;
@@ -27,7 +34,7 @@ int print_natural_series(int n) {
 // generate and print the first n prime numbers
 // if n < 0, continue indefinitely
 // return the next number in the series
-int print_prime_series(int n) {
+int print_prime_series(int n, int d) {
     int c = n;
     // first prime number
     int num = 2;
@@ -45,7 +52,8 @@ int print_prime_series(int n) {
         // if prime
         if (!not_prime) {
             // display current number
-            printf("%d\n", num);
+            printnum(num, d);
+
             // don't decrement on negative c (so we don't underflow)
             if (c > 0) --c;
         }
@@ -57,7 +65,7 @@ int print_prime_series(int n) {
 // generate and print the first n fibonacci numbers
 // if n < 0, continue indefinitely
 // return the next number in the series
-int print_fibonacci_series(int n) {
+int print_fibonacci_series(int n, int d) {
     int c = n;
 
     int last = 0;
@@ -65,12 +73,12 @@ int print_fibonacci_series(int n) {
 
     // display first number
     if (c != 0) {
-        printf("%d\n", last);
+        printnum(num, d);
         --c;
     }
     while (c != 0) {
         // display current number
-        printf("%d\n", num);
+        printnum(num, d);
 
         // compute the next fibonacci number
         int next = last + num;
@@ -86,14 +94,16 @@ struct thread_args {
     // number of numbers to compute
     int n;
     // pointer to the function we'll call
-    int (*series_ptr)(int);
+    int (*series_ptr)(int, int);
+    // ms to delay each number
+    int d;
 };
 
 void *thread_function(void *argp) {
     struct thread_args *p = (struct thread_args *)argp;
 
     // call the function pointer passed to thread
-    int num = p->series_ptr(p->n);
+    int num = p->series_ptr(p->n, p->d);
 
     printf("Computation completed successfully.\n");
     printf("Next number in series: %d.\n", num);
@@ -102,14 +112,16 @@ void *thread_function(void *argp) {
 }
 
 // arguments:
-// -n: number of numbers to generate and print
+// -n: number of numbers to generate and print (default 100)
 //     if n < 0 continue indefinitely
-// -s: series to print
+// -s: series to print (default natural)
 //     'natural' 'prime' or 'fibonacci'
+// -d: time delay in ms for each number (default 1000)
 int main(int argc, char *argv[]) {
     int opt;
     char *nvalue = NULL;
     char *s = NULL;
+    char *dvalue = NULL;
     for (int i=0; i<argc; ++i) {
         if (argv[i][0] == '-') {
             // get nvalue
@@ -119,16 +131,22 @@ int main(int argc, char *argv[]) {
             // get s
             else if (argv[i][1] == 's' && i+1 <= argc) 
                 s = argv[i+1];
+
+            // get d
+            else if (argv[i][1] == 'd' && i+1 <= argc) 
+                dvalue = argv[i+1];
         }
     }
     // default arguments
     if (nvalue == NULL) nvalue = "100";
     if (s == NULL) s = "natural";
+    if (dvalue == NULL) nvalue = "1000";
 
     // define a struct to collect execution parameters
     struct thread_args p;
-    // convert n to an integer
+    // convert n and d to integers
     p.n = atoi(nvalue);
+    p.d = atoi(dvalue);
 
     // name the series we're going to compute
     // and select the desired function
