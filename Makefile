@@ -1,3 +1,4 @@
 
 numgen: main.c
-	gcc main.c -o numgen -lpthread -s
+	mkdir -p bin
+	gcc main.c -o bin/numgen -lpthread -s
