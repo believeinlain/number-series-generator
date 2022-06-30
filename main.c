@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     // default arguments
     if (nvalue == NULL) nvalue = "100";
     if (s == NULL) s = "natural";
-    if (dvalue == NULL) dvalue = "100";
+    if (dvalue == NULL) dvalue = "10";
 
     // define a struct to collect execution parameters
     struct thread_args p;
