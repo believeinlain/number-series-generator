@@ -118,7 +118,6 @@ void *thread_function(void *argp) {
 //     'natural' 'prime' or 'fibonacci'
 // -d: time delay in ms for each number (default 1000)
 int main(int argc, char *argv[]) {
-    int opt;
     char *nvalue = NULL;
     char *s = NULL;
     char *dvalue = NULL;
@@ -140,7 +139,7 @@ int main(int argc, char *argv[]) {
     // default arguments
     if (nvalue == NULL) nvalue = "100";
     if (s == NULL) s = "natural";
-    if (dvalue == NULL) nvalue = "1000";
+    if (dvalue == NULL) dvalue = "100";
 
     // define a struct to collect execution parameters
     struct thread_args p;
